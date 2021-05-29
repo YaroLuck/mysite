@@ -1,6 +1,7 @@
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, get_object_or_404
 
+from blog.forms import EmailPostForm
 from blog.models import Post
 
 from django.views.generic import ListView
@@ -32,3 +33,19 @@ def post_detail(request, year, month, day, post):
                              publish__year=year, publish__month=month,
                              publish__day=day)
     return render(request, 'blog/post/detail.html', {'post': post})
+
+
+def post_share(request, post_id):
+    # Получение статьи по идентификатору.
+    post = get_object_or_404(Post, id=post_id, status='published')
+    if request.method == 'POST':
+        # Форма была отправлена на сохранение.
+        form = EmailPostForm(request.POST)
+        if form.is_valid():
+            # Все поля формы прошли валидацию.
+            cd = form.cleaned_data
+            # ... Отправка электронной почты.
+    else:
+        form = EmailPostForm()
+    return render(request, 'blog/post/share.html',
+                  {'post': post, 'form': form})
